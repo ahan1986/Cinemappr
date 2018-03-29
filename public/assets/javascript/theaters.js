@@ -1,5 +1,6 @@
 //calling google maps function initmap()
 var map;
+var mapMarkers = [];
 window.initMap = function () {
     map = new google.maps.Map(document.getElementById('map'), {
         center: { lat: 39.9526, lng: -75.1652 },
@@ -19,6 +20,12 @@ $(document).ready(function () {
     // function loadingGifGone(){
     //     $("#loadingGif").hide();
     // }
+
+    $(document).bind("ajaxSend", function () {
+        $("#loadingGif").show();
+    }).bind("ajaxComplete", function () {
+        $("#loadingGif").hide();
+    })
 
     // TODO: write addGoogleMaps function
 
@@ -46,6 +53,7 @@ $(document).ready(function () {
     // Handles posting data to server from secondary search form
     $("#resubmit-search").submit(function (event) {
         event.preventDefault();
+        $("#movies").empty();
 
         var $form = $(this),
             zip = $form.find("input[name='zipcode']").val(),
@@ -167,6 +175,9 @@ $(document).ready(function () {
 
             // If there is input for movie theater AND movie title
             if ($("#movie-theater").val() === my_theater_name && $("#movie-title").val()) {
+                removeMarkers();
+                renderMap(my_theater_name);
+
                 displayTheaterName();
 
                 for (var k = 0; k < final_theater_object.movies_with_times.length; k++) {
@@ -179,12 +190,16 @@ $(document).ready(function () {
 
             // If there is input for movie theater ONLY
             else if ($("#movie-theater").val() === my_theater_name && !$("#movie-title").val()) {
+                removeMarkers();
+                renderMap(my_theater_name);
+
                 displayTheaterName();
 
                 for (var k = 0; k < final_theater_object.movies_with_times.length; k++) {
                     jumbotron.append("<h4>" + final_theater_object.movies_with_times[k].title);
                     displayShowtimes();
                 }
+
             }
 
             // If there is input for movie title ONLY
@@ -192,6 +207,9 @@ $(document).ready(function () {
                 for (var k = 0; k < final_theater_object.movies_with_times.length; k++) {
 
                     if ($("#movie-title").val() === final_theater_object.movies_with_times[k].title) {
+                        removeMarkers();
+                        renderMap(my_theater_name);
+        
                         displayTheaterName();
                         jumbotron.append("<h4>" + final_theater_object.movies_with_times[k].title);
                         displayShowtimes();
@@ -208,11 +226,9 @@ $(document).ready(function () {
                     jumbotron.append("<h4>" + final_theater_object.movies_with_times[k].title);
                     displayShowtimes();
                 }
+
+                renderMap(my_theater_name);
             }
-
-            var myTheaterNameForGooglePlaces = my_theater_name.replace(/\s/g, "+");
-            console.log(myTheaterNameForGooglePlaces);
-
 
             // var queryGooglePlaces = 'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/textsearch/json?query=' + myTheaterNameForGooglePlaces + '&key=AIzaSyD9hHd2f2VIqsuz_zHv5m64UXiZgom6sLY'
             //AIzaSyASKnjScxmEcAhuUUchHloDaPz3X3q7KV0
@@ -220,25 +236,14 @@ $(document).ready(function () {
             // var queryGooglePlaces = 'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/textsearch/json?query=' + myTheaterNameForGooglePlaces + '&key=AIzaSyC2pDiPtNXvox6k0Cgit7UHEEvGTjnkG8s'
 
             // var queryGooglePlaces = 'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/textsearch/json?query=' + myTheaterNameForGooglePlaces + '&key=AIzaSyDBkZBVW-dII2-MbnRtJL8Qk99eMR-sjbs'
-            
+
             // Sam's API Key: AIzaSyAsCHeUDG0zhBRHXHgYQM2dIls9fYXgy-k
-            var queryGooglePlaces = 'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/textsearch/json?query=' + myTheaterNameForGooglePlaces + '&key=AIzaSyAsCHeUDG0zhBRHXHgYQM2dIls9fYXgy-k'
 
             // 530e369a263ef99c35face8a2433c85f51330ca2
 
-            $.ajax({
-                url: queryGooglePlaces,
-                type: "GET"
-            }).then(function (event) {
-                console.log(event);
+            // var queryGooglePlaces = 'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=' + myTheaterNameForGooglePlaces + '&key=AIzaSyAsCHeUDG0zhBRHXHgYQM2dIls9fYXgy-k'
 
-                // function to place all the markers on our theater locations
-                theaterMarkers = { lat: event.results[0].geometry.location.lat, lng: event.results[0].geometry.location.lng };
-                var marker = new google.maps.Marker({
-                    position: { lat: event.results[0].geometry.location.lat, lng: event.results[0].geometry.location.lng },
-                    map: map,
-                })
-
+<<<<<<< HEAD
                 //this will recenter the google maps to the last marker placed
                 map.setCenter({ lat: event.results[0].geometry.location.lat, lng: event.results[0].geometry.location.lng });
                 //adding infoWindow to display direction icons, address, and theater names
@@ -258,13 +263,88 @@ $(document).ready(function () {
 
                     };
                 })(marker, contentString, infoWindow));//using closures
-
-            })
-
-            //adding the spinning wheel
-
-
+=======
         }
+
+        function removeMarkers(){
+            for (var i = 0; i < mapMarkers.length; i++){
+                mapMarkers[i].setMap(null);
+            }
+        }
+
+        function renderMap(theaterName) {
+            var myTheaterNameForGooglePlaces = theaterName.replace(/\s/g, "+");
+
+            console.log(myTheaterNameForGooglePlaces);
+>>>>>>> 1eba88ea4b17d1f09587941596d32e814dd58b0f
+
+            // Query Google Maps to geocode zipcode 
+            var geocoder = new google.maps.Geocoder();
+            var zipcode1 = $("#resubmit-search").find("input[name='zipcode']").val()
+            console.log(`zipcode1: ${zipcode1}`);
+            // var geocodeQueryURL = "http://maps.googleapis.com/maps/api/geocode/json?address=" + zipcode1 + "&key=AIzaSyAsCHeUDG0zhBRHXHgYQM2dIls9fYXgy-k";
+
+            var lat = "";
+            var lng = "";
+            geocoder.geocode({ 'address': zipcode1 }, function (results, status) {
+                console.log("geocoder added");
+                console.log(results);
+                console.log(status);
+                if (status == google.maps.GeocoderStatus.OK) {
+                    lat = results[0].geometry.location.lat().toString();
+                    lng = results[0].geometry.location.lng().toString();
+
+                    console.log("lat: ", lat);
+                    console.log("lng: ", lng);
+
+                    // var queryGooglePlaces = 'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=' + myTheaterNameForGooglePlaces + '&location=' + lat + ',' + lng + '&key=AIzaSyAsCHeUDG0zhBRHXHgYQM2dIls9fYXgy-k'
+                    var queryGooglePlaces = 'https://cors-anywhere.herokuapp.com/https://maps.googleapis.com/maps/api/place/nearbysearch/json?keyword=' + myTheaterNameForGooglePlaces + '&location=' + lat + ',' + lng + '&rankby=distance&key=AIzaSyC2pDiPtNXvox6k0Cgit7UHEEvGTjnkG8s'
+
+                    // 530e369a263ef99c35face8a2433c85f51330ca2
+
+                    $.ajax({
+                        url: queryGooglePlaces,
+                        type: "GET"
+                    }).then(function (event) {
+                        console.log(event);
+
+                        // function to place all the markers on our theater locations
+                        // Here is probably where we want to get rid of the markers we don't need after a title search
+                        theaterMarkers = { lat: event.results[0].geometry.location.lat, lng: event.results[0].geometry.location.lng };
+                        var marker = new google.maps.Marker({
+                            position: { lat: event.results[0].geometry.location.lat, lng: event.results[0].geometry.location.lng },
+                            map: map,
+                        })
+                        mapMarkers.push(marker);
+
+                        //this will recenter the google maps to the last marker placed
+                        map.setCenter({ lat: event.results[0].geometry.location.lat, lng: event.results[0].geometry.location.lng });
+                        //adding infoWindow to display direction icons, address, and theater names
+                        var contentString = "<h3>" + theaterName + "</h3>" + '<button id="directions" style="cursor:pointer;" onClick="window.open(\'https://www.google.com/maps/dir/' + myTheaterNameForGooglePlaces + '\',\'_newtab\');">Directions</button>'
+                        var infoWindow = new google.maps.InfoWindow({})
+
+                        google.maps.event.addListener(marker, 'click', (function (marker, contentString, infoWindow) {
+                            return function () {
+
+                                if (openInfoWindow)
+                                    openInfoWindow.close();
+
+                                infoWindow.setContent(contentString);
+                                openInfoWindow = infoWindow;
+                                infoWindow.open(map, marker);
+
+                            };
+                        })(marker, contentString, infoWindow));
+
+                    })
+
+                } else {
+                    alert("Geocode was not successful for the following reason: " + status);
+                }
+                //    alert('Latitude: ' + lat + ' Logitude: ' + lng);
+            })
+        }
+
     }
 })
 
