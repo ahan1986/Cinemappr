@@ -7,7 +7,6 @@ window.initMap = function () {
     });
 }
 
-<<<<<<< HEAD
 $(document).ready(function () {
     console.log("theater page linked")
 
@@ -15,32 +14,11 @@ $(document).ready(function () {
     $(document).bind("ajaxSend", function(){
         $("#loadingGif").show();
     }).bind("ajaxComplete", function() {
-        //once all the ajax is completed, there's a 3 second countdown before eerything is displayed.
-        setTimeout(loadingGifGone, 3000);
-    })
-    function loadingGifGone(){
         $("#loadingGif").hide();
-    }
-=======
-//adding a loading gif to wait for all the ajax to complete
-
-$(document).ready(function () {
-    console.log("theater page linked")
-
-    // show and hide movie title and theater query options
-    $(".more-options").on("click", function (event) {
-        if ($("#options").text() == " More options") {
-            $("#options").text(" Hide options");
-            $("#toggle-sign").attr("class", "glyphicon glyphicon-minus-sign");
-        } else {
-            $("#options").text(" More options");
-            $("#toggle-sign").attr("class", "glyphicon glyphicon-plus-sign");
-        }
-        $("#show-hide").fadeToggle("slow", "swing");
-
-        return false;
-    });
->>>>>>> cd62cb115bae2e65cce5b8411b75a22fccc81f04
+    })
+    // function loadingGifGone(){
+    //     $("#loadingGif").hide();
+    // }
 
     // TODO: write addGoogleMaps function
 
